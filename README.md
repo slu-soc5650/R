@@ -4,7 +4,7 @@
 This repository contains files for:
 -   `Labs/` - replication files for lab examples
 -   `Lectures/` - replication files for lecture examples
--   `QuickRef/` - quick reference sheets for each week
+-   `Reference/` - reference materials for each week
 -   `LICENSE.md`
 -   `README.md`
 -   `.gitignore`
