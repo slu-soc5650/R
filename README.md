@@ -2,9 +2,7 @@
 
 ### Repository Contents
 This repository contains files for:
--   `Labs/` - replication files for lab examples
--   `Lectures/` - replication files for lecture examples
--   `Reference/` - reference materials for each week
+-   `Week/` - replication files for weekly labs and lectures as well as quick reference files
 -   `LICENSE.md`
 -   `README.md`
 -   `.gitignore`
@@ -21,9 +19,14 @@ The packages that you'll need are:
 
 You can install packages using the `install.packages("packageName")` function.
 
-For assignments, you should submit your RNotebook file, and a knit output file that weaves your narrative, commands, and output together into a single document. This can be created using the `knit('filename.Rmd')` function.
+For assignments, you should submit your R Markdown file, R Notebook file, and a knit output file that weaves your narrative, commands, and output together into a single document. This can be created using the `knit('filename.Rmd')` function.
 
 You may also consider adding the `language-r` package to Atom as well.
+
+### html Notebooks
+html formatted notebook files are posted for each replication. They can be viewed at the following links:
+*   [Lab-02](http://slu-soc5650.github.io/R/Week-02/Lab-02/lab-02-R.nb.html)
+*   [Lab-03](http://slu-soc5650.github.io/R/Week-03/Lab-03/lab-03-R.nb.html)
 
 ### About SOC 4650/5650: Introduction to Geographic Information Science
 This class introduces both the theoretical and technical skills that constitute the nascent field of Geographic Information Science (GISc). Techniques introduced include data cleaning and management, map production and cartography, and the manipulation of both tabular and spatial data. The impacts of GISc on public policy, and the effects of public policy on GISc, are also discussed. The course incorporates a wide variety of social, economic, health, urban, meteorological, and environmental data. These data are mapped at a variety of extents, from the City of St. Louis to the St. Louis Metropolitan region, Missouri, all United States counties, and all U.S. states.
