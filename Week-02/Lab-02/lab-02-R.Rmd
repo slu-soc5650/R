@@ -1,0 +1,110 @@
+---
+title: "SOC 4650/5650: Lab-02"
+author: "Christopher Prener, Ph.D."
+date: "24 Feb 2017"
+output: html_notebook
+---
+
+## Description
+This R Notebook file illustrates basic data exploration functions in R. 
+
+## Dependencies
+This R Notebook uses functions from the `dplyr` package, which is part of the `tidyverse`. The `library()` function is used to load packages.
+
+```{r}
+library(dplyr)
+library(broom)
+```
+
+## Question 11
+
+### 11a
+
+Data need to be loaded into a type of `R` object called a "data frame". We give the object a name, in this case `impairedLakes`, and use the assignment operator `<-` to feed data into it.
+
+```{r}
+impairedLakes <- read.csv("MO_HYDRO_ImpairedLakes.csv", stringsAsFactors = FALSE)
+```
+
+The `read.csv` function, which is part of base `R`, loads the specified `.csv` file from your working directory and places it in the `impairedLakes` data frame. Remember that, when you use an RStudio project, your working directory will be automatically set. Also recall that this function is used specifically for .csv files. If you want to read other types of files, you will need to use specific functions for them. Finally, remember to set `stringsAsFactors = FALSE` to avoid any unplanned or unwanted changes to string data.
+
+### 11b
+
+```{r}
+str(impairedLakes)
+```
+
+The `str()` function, which is part of base `R`, returns data types as well as sample values for each object in your data frame. There are 13 variables classified as `chr` or "charater".
+
+### 11c
+
+```{r}
+class(impairedLakes$YR)
+```
+
+We can use the `class()` function, which is part of base `R`, to identify the type of data that a variable contains. In this case, the variable `YR` contains integer data.
+
+```{r}
+summary(impairedLakes$YR)
+```
+
+The `summary()` function, which is part of base `R`, gives us some basic descriptive statistics about the variable `yr`. These include the minimum and maximum values, which can be used to calculate range. They also include the first and third quartiles, which can be used to calculate interquartile range. Finally, they include the median (50th percentile) and the mean (the average).
+
+The average year that a body of water was listed was 2010. The earliest a body of water was added was 2002. The latest a body of water was added was 2016. Therefore, there is a range of fourteen years. 
+
+```{r}
+yearStats <- tidy(summary(impairedLakes$YR))
+yearStats
+```
+
+If we wrap the `summary()` function in the `tidy()` function, which is part of the `broom` package, our data can be neatly saved into a data frame. Here, we've named that data frame `yearStats`. This makes it easy to refer to values later, extract them for further use, or export them to a `.csv` file.
+
+### 11d
+
+```{r}
+class(impairedLakes$WATER_BODY)
+```
+
+The `WATER_BODY` variable contains character data.
+
+```{r}
+waterTable <- tidy(table(impairedLakes$WATER_BODY))
+waterTable
+```
+
+Scanning through the `waterTable` object output that we get when we execute the code chunk above, we can see that "Table Rock Lake" has the most enteries.
+
+```{r}
+waterTable <- 
+  tidy(table(impairedLakes$WATER_BODY)) %>%
+  arrange(desc(Freq))
+waterTable
+```
+
+This second third code chunk is a more effective option for determining the modal category of a variable with a large number of values. We use the `dplyr` package to "pipe" a number of functions into the object waterTable. This allows us to chain commands together, shortening the amount of code we have to write and making that code easier to read. Remember to read the pipe symbol as a synonym for "then". 
+In this case, we create a table of the variable `WATER_BODY` and store that table's output in a data frame, *then* we re-arrange the data frame so that it is sorted with the largest values for the variable `Freq` in the first rows. The results of this process are assigned to the object `waterTable`, which we can then call to identify the modal category, which is "Table Rock Lake".
+
+### 11e
+
+```{r}
+class(impairedLakes$SOURCE_)
+```
+
+The `SOURCE_` variable contains character data.
+
+```{r}
+sourceTable <- tidy(table(impairedLakes$SOURCE_))
+sourceTable
+```
+
+The most common source of pollutants is atmospheric deposition. Since there are so few categories in this variable, we do not need to worry about sorting its values like we did in the last question.
+
+### 11f
+
+```{r}
+impairedLakes %>%
+  select(YR, WATER_BODY, POLLUTANT) %>%
+  head(10)
+```
+
+We can use the same piping procedure to extract a select number of columns and observations. This is useful when exploring data to get a snapshot of what, say, the first ten observations look like. We take the `impairedLakes` data frame *then* extract the variables `YR`, `WATER_BODY`, and `POLLUTANT` *then* we print the first ten rows.
