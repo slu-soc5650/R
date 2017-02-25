@@ -1,0 +1,162 @@
+---
+title: "SOC 4650/5650: Lab-03"
+author: "Christopher Prener, Ph.D."
+date: "25 Feb 2017"
+output: html_notebook
+---
+
+## Description
+This R Notebook file illustrates basic data cleaning functions in R using data on rivers and streams listed by the State of Missouri under the Clean Water Act.
+
+## Assumptions
+This R Notebook assumes that you have your data organized in a single `lab-03` directory. The notebook should be saved in this directory, which is also where your R project file should be saved and where html output that will be generated on each save will be located.
+
+`lab-03` directory should have three sub-directories:
+*   `CleanData` - your final clean dataset should be saved here
+*   `Output` - save your knit markdown file here along with your cleaned output tables
+*   `RawData` - the raw data should be saved here
+
+## Dependencies
+This R Notebook uses functions from the `dplyr` and `broom` packages, which are part of the `tidyverse`. We also use the `knit` package, which is another R Studio maintained package for R. The `library()` function is used to load packages.
+
+```{r, messages = FALSE}
+library(dplyr)
+library(broom)
+library(knitr)
+```
+
+## Question 7
+
+### 7a
+
+```{r}
+impairedStreams <- read.csv("RawData/MO_HYDRO_ImpairedRiversStreams.csv", stringsAsFactors = FALSE)
+```
+
+This function loads the data from the raw `.csv` file into a data frame named `impairedStreams`.
+
+### 7b
+
+We'll use the `dplyr` function `select()` to remove unneeded variables from the data frame:
+
+```{r}
+impairedStreams <- 
+  impairedStreams %>%
+  select(-BUSINESSID, -MDNR_IMPSZ, -EPA_APPRSZ, -UNIT, -WB_EPA, -COMMENT_, -EVENTDAT, 
+         -REACHCODE, -RCHSMDATE, -RCH_RES, -SRC_DESC, -FEAT_URL, -FMEASURE, -TMEASURE, 
+         -SHAPE_Leng, -Shape_Le_1)
+```
+
+Note how we use the `-` (minus sign) before each variable to specify that we want that variable *removed* from the data frame. We could also use the `select()` function to keep variables by listing variables without the minus sign. In that senario, any listed variables would be kept while all unlisted variables would be discarded. Each approach comes down to (typically) what requires less typing - writing out everything you want to keep, or everything you want to discard.
+
+### 7c
+
+```{r}
+impairedStreamsSTL <-
+  impairedStreams %>%
+  filter(COUNTY_U_D == "St. Louis")
+```
+
+The `filter()` function is used to subset data. Here, we subset all of the data that lists St. Louis County as the exclusive county where the polluted body of water is and pipe it into a new object called `impairedStreamsSTL`.
+
+### 7d
+
+```{r}
+impairedStreamsSTL %>%
+  distinct(WBID)
+```
+
+Note that the `distinct(WBID)` function returns output with 23 rows. This indicates that, out of the 179 observations in `impairedStreamsSTL`, there are 23 distinct values for `WBID`. Therefore, `WBID` does not uniquely identify observations in our data frame.
+
+#### 7e
+
+```{r}
+impairedStreamsSTL %>%
+  distinct(PERM_ID)
+```
+
+The output indicates that, out of the 179 observations in `impairedStreamsSTL`, there are 78 distinct values for `PERM_ID`. Therefore, `PERM_ID` does not uniquely identify observations in our data frame.
+
+#### 7f
+```{r}
+tidy(table(impairedStreamsSTL$PERM_ID))
+```
+
+The first row, which is blank for `Var1`, indicates the number of observations that are missing data for the `PERM_ID` variable. There are 32 observations with missing data here.
+
+#### 7g
+```{r}
+impairedStreamsSTL <- 
+  impairedStreamsSTL %>%
+  select(-PERM_ID)
+```
+
+Since the `PERM_ID` is of little value to us right now, we'll drop it from the data frame.
+
+#### 7h
+
+```{r}
+impairedStreamsSTL <-
+  impairedStreamsSTL %>%
+  rename(source = SOURCE_)
+```
+
+This code chunk pipes a renamed variable into our existing data frame.
+
+#### 7i
+
+```{r}
+impairedStreamsSTL <-
+  impairedStreamsSTL %>%
+  rename(county = COUNTY_U_D)
+```
+
+This code chunk pipes a second renamed variable into our existing data frame.
+
+#### 7j
+
+```{r}
+impairedStreamsSTL %>%
+  distinct()
+```
+
+The output indicates that, out of the 179 observations in `impairedStreamsSTL`, there are 39 distinct rows.
+
+#### 7k
+
+```{r}
+impairedStreamsSTL <-
+  impairedStreamsSTL %>%
+  distinct()
+```
+
+There were 140 observations dropped after taking the syntax from question **7j** and assigning the results to the `impairedStreamsSTL` data frame.
+
+#### 7l
+If you were to scroll through the table, you'll notice that "Fee Fee Creek" is named `Fee Fee Cr. (new)` in the variable `WATER_BODY`. This is the only body of water that has this characteristic. 
+
+```{r}
+impairedStreamsSTL$WATER_BODY <-
+  ifelse(impairedStreamsSTL$WATER_BODY == "Fee Fee Cr. (new)", "Fee Fee Cr.", 
+         impairedStreamsSTL$WATER_BODY)
+streamTable <- tidy(table(impairedStreamsSTL$WATER_BODY))
+streamTable
+```
+
+Here, we use the `ifelse()` function from base `R` to evaluate each observation in the `impairedStreamsSTL` data frame. If the evaluation is TRUE (i.e. the observation's value for `WATER_BODY` is `Fee Fee Cr. (new)`), the value for that observation's `WATER_BODY` is changed to `Fee Fee Cr.`. If the evaluation is FALSE (i.e. the observation's value for `WATER_BODY` is anything else), the original text of `WATER_BODY` is retained. 
+
+We can see the results when a table summarizing the number of bodies of water is stored as the object `streamTable` and printed.
+
+## Final Steps
+We can export our tidy sets of output and data using the `write.csv()` function.
+
+```{r}
+write.csv(impairedStreamsSTL, "CleanData/lab-03-impairedStreamsSTL.csv", na="")
+write.csv(streamTable, "Output/lab-03-streamTable.csv", na="")
+```
+
+Finally, we'll export our our output. We can process this R Notebook so that all of the commands, output, and narrative are "woven" together into a single Markdown file that GitHub can display. We use the `knit()` function from the `knitr` package to do this. We have to specify both the input and output files.
+
+```{r, results = 'hide', messages = FALSE}
+knit('lab-03-R.Rmd', "Output/lab-03-R.md")
+```
