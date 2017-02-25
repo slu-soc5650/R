@@ -1,19 +1,27 @@
 ---
 title: "SOC 4650/5650: Lab-02"
 author: "Christopher Prener, Ph.D."
-date: "24 Feb 2017"
+date: "25 Feb 2017"
 output: html_notebook
 ---
 
 ## Description
-This R Notebook file illustrates basic data exploration functions in R. 
+This R Notebook file illustrates basic data exploration functions in R using data on lakes listed by the State of Missouri under the Clean Water Act.
+
+## Assumptions
+This R Notebook assumes that you have your data organized in a single `lab-02` directory. The notebook should be saved in this directory, which is also where your R project file should be saved and where html output that will be generated on each save will be located.
+
+`lab-02` directory should have two sub-directories:
+*   `Output` - save your knit markdown file here along with your cleaned output tables
+*   `RawData` - the raw data should be saved here
 
 ## Dependencies
-This R Notebook uses functions from the `dplyr` package, which is part of the `tidyverse`. The `library()` function is used to load packages.
+This R Notebook uses functions from the `dplyr` and `broom` packages, which are part of the `tidyverse`. We also use the `knit` package, which is another R Studio maintained package for R. The `library()` function is used to load packages.
 
-```{r}
+```{r, messages = FALSE}
 library(dplyr)
 library(broom)
+library(knitr)
 ```
 
 ## Question 11
@@ -23,7 +31,7 @@ library(broom)
 Data need to be loaded into a type of `R` object called a "data frame". We give the object a name, in this case `impairedLakes`, and use the assignment operator `<-` to feed data into it.
 
 ```{r}
-impairedLakes <- read.csv("MO_HYDRO_ImpairedLakes.csv", stringsAsFactors = FALSE)
+impairedLakes <- read.csv("RawData/MO_HYDRO_ImpairedLakes.csv", stringsAsFactors = FALSE)
 ```
 
 The `read.csv` function, which is part of base `R`, loads the specified `.csv` file from your working directory and places it in the `impairedLakes` data frame. Remember that, when you use an RStudio project, your working directory will be automatically set. Also recall that this function is used specifically for .csv files. If you want to read other types of files, you will need to use specific functions for them. Finally, remember to set `stringsAsFactors = FALSE` to avoid any unplanned or unwanted changes to string data.
@@ -68,21 +76,15 @@ class(impairedLakes$WATER_BODY)
 The `WATER_BODY` variable contains character data.
 
 ```{r}
-waterTable <- tidy(table(impairedLakes$WATER_BODY))
-waterTable
-```
-
-Scanning through the `waterTable` object output that we get when we execute the code chunk above, we can see that "Table Rock Lake" has the most enteries.
-
-```{r}
 waterTable <- 
   tidy(table(impairedLakes$WATER_BODY)) %>%
   arrange(desc(Freq))
-waterTable
+head(waterTable)
 ```
 
-This second third code chunk is a more effective option for determining the modal category of a variable with a large number of values. We use the `dplyr` package to "pipe" a number of functions into the object waterTable. This allows us to chain commands together, shortening the amount of code we have to write and making that code easier to read. Remember to read the pipe symbol as a synonym for "then". 
-In this case, we create a table of the variable `WATER_BODY` and store that table's output in a data frame, *then* we re-arrange the data frame so that it is sorted with the largest values for the variable `Freq` in the first rows. The results of this process are assigned to the object `waterTable`, which we can then call to identify the modal category, which is "Table Rock Lake".
+Now, we use the `dplyr` package to "pipe" a number of functions into the object `waterTable`. This allows us to chain commands together, shortening the amount of code we have to write and making that code easier to read. Remember to read the pipe symbol as a synonym for "then". 
+
+In this case, we create a table of the variable `WATER_BODY` and store that table's output in a data frame, *then* we re-arrange the data frame so that it is sorted with the largest values for the variable `Freq` in the first rows. The results of this process are assigned to the object `waterTable`, which we can then call using the `head()` function (which by default gives us the first six rows of the data frame) to identify the modal category, which is "Table Rock Lake".
 
 ### 11e
 
@@ -108,3 +110,20 @@ impairedLakes %>%
 ```
 
 We can use the same piping procedure to extract a select number of columns and observations. This is useful when exploring data to get a snapshot of what, say, the first ten observations look like. We take the `impairedLakes` data frame *then* extract the variables `YR`, `WATER_BODY`, and `POLLUTANT` *then* we print the first ten rows.
+
+## Final Steps
+We can export our three tidy sets of output as well using the `write.csv()` function.
+
+```{r}
+write.csv(sourceTable, "Output/lab-02-sourceTable.csv", na="")
+write.csv(waterTable, "Output/lab-02-waterTable.csv", na="")
+write.csv(yearStats, "Output/lab-02-yearStats.csv", na="")
+```
+
+Finally, we'll export our our output. We can process this R Notebook so that all of the commands, output, and narrative are "woven" together into a single Markdown file that GitHub can display. We use the `knit()` function from the `knitr` package to do this. We have to specify both the input and output files.
+
+```{r, results = 'hide', messages = FALSE}
+knit('lab-02-R.Rmd', "Output/lab-02-R.md")
+```
+
+

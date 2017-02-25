@@ -1,40 +1,28 @@
 ---
 title: "SOC 4650/5650: Lab-02"
 author: "Christopher Prener, Ph.D."
-date: "24 Feb 2017"
+date: "25 Feb 2017"
 output: html_notebook
 ---
 
 ## Description
-This R Notebook file illustrates basic data exploration functions in R. 
+This R Notebook file illustrates basic data exploration functions in R using data on lakes listed by the State of Missouri under the Clean Water Act.
+
+## Assumptions
+This R Notebook assumes that you have your data organized in a single `lab-02` directory. The notebook should be saved in this directory, which is also where your R project file should be saved and where html output that will be generated on each save will be located.
+
+`lab-02` directory should have two sub-directories:
+*   `Output` - save your knit markdown file here along with your cleaned output tables
+*   `RawData` - the raw data should be saved here
 
 ## Dependencies
-This R Notebook uses functions from the `dplyr` package, which is part of the `tidyverse`. The `library()` function is used to load packages.
+This R Notebook uses functions from the `dplyr` and `broom` packages, which are part of the `tidyverse`. We also use the `knit` package, which is another R Studio maintained package for R. The `library()` function is used to load packages.
 
 
 ```r
 library(dplyr)
-```
-
-```
-## 
-## Attaching package: 'dplyr'
-```
-
-```
-## The following objects are masked from 'package:stats':
-## 
-##     filter, lag
-```
-
-```
-## The following objects are masked from 'package:base':
-## 
-##     intersect, setdiff, setequal, union
-```
-
-```r
 library(broom)
+library(knitr)
 ```
 
 ## Question 11
@@ -45,7 +33,7 @@ Data need to be loaded into a type of `R` object called a "data frame". We give 
 
 
 ```r
-impairedLakes <- read.csv("MO_HYDRO_ImpairedLakes.csv", stringsAsFactors = FALSE)
+impairedLakes <- read.csv("RawData/MO_HYDRO_ImpairedLakes.csv", stringsAsFactors = FALSE)
 ```
 
 The `read.csv` function, which is part of base `R`, loads the specified `.csv` file from your working directory and places it in the `impairedLakes` data frame. Remember that, when you use an RStudio project, your working directory will be automatically set. Also recall that this function is used specifically for .csv files. If you want to read other types of files, you will need to use specific functions for them. Finally, remember to set `stringsAsFactors = FALSE` to avoid any unplanned or unwanted changes to string data.
@@ -146,140 +134,25 @@ The `WATER_BODY` variable contains character data.
 
 
 ```r
-waterTable <- tidy(table(impairedLakes$WATER_BODY))
-waterTable
-```
-
-```
-##                              Var1 Freq
-## 1      August A Busch Lake No. 37    1
-## 2                   Bee Tree Lake    1
-## 3             Belcher Branch Lake    1
-## 4        Bowling Green Lake - Old    3
-## 5               Buffalo Bill Lake    1
-## 6          Busch W.A. No. 35 Lake    1
-## 7                  Chaumiere Lake    1
-## 8                 Clearwater Lake    3
-## 9                       Coot Lake    1
-## 10                Cottontail Lake    1
-## 11                     Crane Lake    2
-## 12          Crowder St. Park Lake    1
-## 13      Deer Ridge Community Lake    1
-## 14                   Fellows Lake    1
-## 15                    Forest Lake    4
-## 16                Fox Valley Lake    3
-## 17                   Foxboro Lake    1
-## 18                    Frisco Lake    1
-## 19           Harrison County Lake    1
-## 20               Hazel Creek Lake    2
-## 21               Holden City Lake    1
-## 22                Hough Park Lake    1
-## 23                 Hunnewell Lake    4
-## 24    Indian Creek Community Lake    1
-## 25              Knox Village Lake    1
-## 26                Labelle Lake #2    1
-## 27                    Lake Boutin    1
-## 28                     Lake Buteo    1
-## 29              Lake of the Woods    2
-## 30                      Lake Paho    4
-## 31                 Lake St. Louis    1
-## 32               Lake Ste. Louise    1
-## 33                Lake Tom Sawyer    1
-## 34                 Lake Winnebago    1
-## 35                 Lewistown Lake    1
-## 36                  Longview Lake    1
-## 37                Maple Leaf Lake    1
-## 38                Mark Twain Lake    3
-## 39               Monroe City Lake    1
-## 40                  Monsanto Lake    1
-## 41                   Mozingo Lake    1
-## 42                   Noblett Lake    3
-## 43                   Norfork Lake    1
-## 44   North Bethany City Reservoir    1
-## 45                    Palmer Lake    1
-## 46    Perry County Community Lake    2
-## 47            Perry Phillips Lake    1
-## 48 Rinquelin Trail Community Lake    1
-## 49               Sugar Creek Lake    1
-## 50                    Sunset Lake    1
-## 51                Table Rock Lake    6
-## 52             Terre Du Lac Lakes    1
-## 53    Thirtyfour Corner Blue Hole    1
-## 54          Unity Village Lake #2    1
-## 55                 Weatherby Lake    4
-```
-
-Scanning through the `waterTable` object output that we get when we execute the code chunk above, we can see that "Table Rock Lake" has the most enteries.
-
-
-```r
 waterTable <- 
   tidy(table(impairedLakes$WATER_BODY)) %>%
   arrange(desc(Freq))
-waterTable
+head(waterTable)
 ```
 
 ```
-##                              Var1 Freq
-## 1                 Table Rock Lake    6
-## 2                     Forest Lake    4
-## 3                  Hunnewell Lake    4
-## 4                       Lake Paho    4
-## 5                  Weatherby Lake    4
-## 6        Bowling Green Lake - Old    3
-## 7                 Clearwater Lake    3
-## 8                 Fox Valley Lake    3
-## 9                 Mark Twain Lake    3
-## 10                   Noblett Lake    3
-## 11                     Crane Lake    2
-## 12               Hazel Creek Lake    2
-## 13              Lake of the Woods    2
-## 14    Perry County Community Lake    2
-## 15     August A Busch Lake No. 37    1
-## 16                  Bee Tree Lake    1
-## 17            Belcher Branch Lake    1
-## 18              Buffalo Bill Lake    1
-## 19         Busch W.A. No. 35 Lake    1
-## 20                 Chaumiere Lake    1
-## 21                      Coot Lake    1
-## 22                Cottontail Lake    1
-## 23          Crowder St. Park Lake    1
-## 24      Deer Ridge Community Lake    1
-## 25                   Fellows Lake    1
-## 26                   Foxboro Lake    1
-## 27                    Frisco Lake    1
-## 28           Harrison County Lake    1
-## 29               Holden City Lake    1
-## 30                Hough Park Lake    1
-## 31    Indian Creek Community Lake    1
-## 32              Knox Village Lake    1
-## 33                Labelle Lake #2    1
-## 34                    Lake Boutin    1
-## 35                     Lake Buteo    1
-## 36                 Lake St. Louis    1
-## 37               Lake Ste. Louise    1
-## 38                Lake Tom Sawyer    1
-## 39                 Lake Winnebago    1
-## 40                 Lewistown Lake    1
-## 41                  Longview Lake    1
-## 42                Maple Leaf Lake    1
-## 43               Monroe City Lake    1
-## 44                  Monsanto Lake    1
-## 45                   Mozingo Lake    1
-## 46                   Norfork Lake    1
-## 47   North Bethany City Reservoir    1
-## 48                    Palmer Lake    1
-## 49            Perry Phillips Lake    1
-## 50 Rinquelin Trail Community Lake    1
-## 51               Sugar Creek Lake    1
-## 52                    Sunset Lake    1
-## 53             Terre Du Lac Lakes    1
-## 54    Thirtyfour Corner Blue Hole    1
-## 55          Unity Village Lake #2    1
+##                       Var1 Freq
+## 1          Table Rock Lake    6
+## 2              Forest Lake    4
+## 3           Hunnewell Lake    4
+## 4                Lake Paho    4
+## 5           Weatherby Lake    4
+## 6 Bowling Green Lake - Old    3
 ```
 
-This second third code chunk is a more effective option for determining the modal category of a variable with a large number of values. We use the `dplyr` package to "pipe" a number of functions into the object waterTable. This allows us to chain commands together, shortening the amount of code we have to write and making that code easier to read. Remember to read the pipe symbol as a synonym for "then". 
-In this case, we create a table of the variable `WATER_BODY` and store that table's output in a data frame, *then* we re-arrange the data frame so that it is sorted with the largest values for the variable `Freq` in the first rows. The results of this process are assigned to the object `waterTable`, which we can then call to identify the modal category, which is "Table Rock Lake".
+Now, we use the `dplyr` package to "pipe" a number of functions into the object `waterTable`. This allows us to chain commands together, shortening the amount of code we have to write and making that code easier to read. Remember to read the pipe symbol as a synonym for "then". 
+
+In this case, we create a table of the variable `WATER_BODY` and store that table's output in a data frame, *then* we re-arrange the data frame so that it is sorted with the largest values for the variable `Freq` in the first rows. The results of this process are assigned to the object `waterTable`, which we can then call using the `head()` function (which by default gives us the first six rows of the data frame) to identify the modal category, which is "Table Rock Lake".
 
 ### 11e
 
@@ -337,3 +210,32 @@ impairedLakes %>%
 ```
 
 We can use the same piping procedure to extract a select number of columns and observations. This is useful when exploring data to get a snapshot of what, say, the first ten observations look like. We take the `impairedLakes` data frame *then* extract the variables `YR`, `WATER_BODY`, and `POLLUTANT` *then* we print the first ten rows.
+
+## Final Steps
+We can export our three tidy sets of output as well using the `write.csv()` function.
+
+
+```r
+write.csv(sourceTable, "Output/lab-02-sourceTable.csv", na="")
+write.csv(waterTable, "Output/lab-02-waterTable.csv", na="")
+write.csv(yearStats, "Output/lab-02-yearStats.csv", na="")
+```
+
+Finally, we'll export our our output. We can process this R Notebook so that all of the commands, output, and narrative are "woven" together into a single Markdown file that GitHub can display. We use the `knit()` function from the `knitr` package to do this. We have to specify both the input and output files.
+
+
+```r
+knit('lab-02-R.Rmd', "Output/lab-02-R.md")
+```
+
+```
+## 
+## 
+## processing file: lab-02-R.Rmd
+```
+
+```
+## output file: Output/lab-02-R.md
+```
+
+
